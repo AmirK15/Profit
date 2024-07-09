@@ -1,9 +1,26 @@
 import React, { FormEvent, useState } from 'react';
-import { Box, Button, Container, TextField, Typography } from '@mui/material';
+import {
+  BottomNavigation,
+  BottomNavigationAction,
+  Box,
+  Button,
+  Grid,
+  Paper,
+  TextField,
+  Typography,
+} from '@mui/material';
+import RestoreIcon from '@mui/icons-material/Restore';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ArchiveIcon from '@mui/icons-material/Archive';
+import FolderIcon from '@mui/icons-material/Folder';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 export const App = () => {
   const [formText, setFormText] = useState('');
   const [inputValue, setInputValue] = useState('');
+
+  const [value, setValue] = useState('');
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -12,8 +29,14 @@ export const App = () => {
   };
 
   return (
-    <Container style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <Box style={{ display: 'flex', flexDirection: 'column', rowGap: '15px' }}>
+    <>
+      <Grid
+        style={{ height: '100vh' }}
+        container
+        rowGap={2}
+        direction='column'
+        justifyContent='center'
+        alignItems='center'>
         {formText && <Typography style={{ textAlign: 'center' }}>{formText}$</Typography>}
         <Box
           style={{ display: 'flex', flexDirection: 'column', rowGap: '10px' }}
@@ -30,7 +53,21 @@ export const App = () => {
             Submit
           </Button>
         </Box>
-      </Box>
-    </Container>
+        {value && <Typography style={{ textAlign: 'center' }}>{value} page</Typography>}
+      </Grid>
+      <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
+        <BottomNavigation
+          value={value}
+          onChange={(event, newValue) => {
+            setValue(newValue);
+          }}>
+          <BottomNavigationAction label='Recents' value='recents' icon={<RestoreIcon />} />
+          <BottomNavigationAction label='Favorites' value='favorites' icon={<FavoriteIcon />} />
+          <BottomNavigationAction label='Archive' value='archive' icon={<ArchiveIcon />} />
+          <BottomNavigationAction label='Folder' value='folder' icon={<FolderIcon />} />
+          <BottomNavigationAction label='Nearby' value='nearby' icon={<LocationOnIcon />} />
+        </BottomNavigation>
+      </Paper>
+    </>
   );
 };
