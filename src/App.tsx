@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, useEffect, useState } from 'react';
 import {
   BottomNavigation,
   BottomNavigationAction,
@@ -6,9 +6,10 @@ import {
   Button,
   Container,
   createTheme,
-  Drawer,
   Fab,
   Grid,
+  List,
+  ListItemText,
   Paper,
   SwipeableDrawer,
   TextField,
@@ -21,9 +22,13 @@ import ArchiveIcon from '@mui/icons-material/Archive';
 import FolderIcon from '@mui/icons-material/Folder';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AddIcon from '@mui/icons-material/Add';
-import { green, teal } from '@mui/material/colors';
+import { teal } from '@mui/material/colors';
+import { useTransactionsStore } from './store';
 
 const theme = createTheme({
+  typography: {
+    fontFamily: 'Public Sans',
+  },
   palette: {
     primary: {
       main: teal[500],
@@ -32,15 +37,22 @@ const theme = createTheme({
 });
 
 export const App = () => {
+  const { transactions, getAllTransactions, createTransaction } = useTransactionsStore();
   const [isOpen, setIsOpen] = useState(false);
   const [formText, setFormText] = useState('');
   const [inputValue, setInputValue] = useState('');
 
   const [value, setValue] = useState('');
 
+  useEffect(() => {
+    getAllTransactions();
+  }, []);
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    createTransaction(+inputValue);
+    // getAllTransactions();
     setFormText(inputValue);
     setInputValue('');
   };
@@ -57,7 +69,17 @@ export const App = () => {
             justifyContent: 'center',
             alignItems: 'center',
           }}>
-          <Typography variant='h3'>PROFIT</Typography>
+          <Grid container direction='column' justifyContent='center' alignItems='center'>
+            <Typography variant='h3'>PROFIT</Typography>
+            <List>
+              {transactions.map(item => (
+                <Grid container direction='row' columnGap={1}>
+                  <ListItemText primary={item.description} />
+                  <ListItemText primary={item.price} />
+                </Grid>
+              ))}
+            </List>
+          </Grid>
           <SwipeableDrawer anchor='bottom' open={isOpen} onClose={() => setIsOpen(false)} onOpen={() => {}}>
             <Grid
               style={{ height: '90vh' }}
