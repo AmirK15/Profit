@@ -1,44 +1,33 @@
 import { create } from 'zustand';
+import { db } from './firebase-config';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 
-type Transaction = {
+export type Transaction = {
   id: number;
+  sum: number;
   category: string;
   description: string;
   date: string;
-  price: number;
 };
 
 interface TransactionsState {
   transactions: Transaction[];
   getAllTransactions: () => void;
-  createTransaction: (price: number) => void;
+  createTransaction: (transactionInfo: Omit<Transaction, 'id'>) => void;
 }
+
+const transactionsCollection = collection(db, 'transactions');
 
 export const useTransactionsStore = create<TransactionsState>()(set => ({
   transactions: [],
 
   getAllTransactions: async () => {
-    const result = await fetch('https://6502dc82a0f2c1f3faeafec8.mockapi.io/transactions');
-    const data = await result.json();
-    set({ transactions: data });
+    const data = await getDocs(transactionsCollection);
+    // @ts-ignore
+    set({ transactions: data.docs.map(item => ({ id: item.id, ...item.data() })) });
   },
 
-  createTransaction: async (price: number) => {
-    // todo change endpoint source
-    // await fetch('https://example.org/post', {
-    //   method: 'POST',
-    //   headers: {
-    //     Accept: 'application/json',
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({ id: Math.random(), category: '', description: 'Dinner', date: '', price: price }),
-    // });
-
-    set(state => ({
-      transactions: [
-        ...state.transactions,
-        { id: Math.random(), category: '', description: 'Dinner', date: '', price: price },
-      ],
-    }));
+  createTransaction: async transactionInfo => {
+    await addDoc(transactionsCollection, transactionInfo);
   },
 }));

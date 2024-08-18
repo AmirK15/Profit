@@ -39,9 +39,9 @@ const theme = createTheme({
 export const App = () => {
   const { transactions, getAllTransactions, createTransaction } = useTransactionsStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [formText, setFormText] = useState('');
-  const [inputValue, setInputValue] = useState('');
-
+  const [price, setPrice] = useState('');
+  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');
   const [value, setValue] = useState('');
 
   useEffect(() => {
@@ -51,10 +51,14 @@ export const App = () => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    createTransaction(+inputValue);
-    // getAllTransactions();
-    setFormText(inputValue);
-    setInputValue('');
+    createTransaction({
+      sum: +price,
+      category: category,
+      description: description,
+      date: new Date('August 18, 2024 16:54:30').toString(),
+    });
+    getAllTransactions();
+    setIsOpen(false);
   };
 
   return (
@@ -74,8 +78,9 @@ export const App = () => {
             <List>
               {transactions.map(item => (
                 <Grid container direction='row' columnGap={1}>
+                  <ListItemText primary={item.sum} />
                   <ListItemText primary={item.description} />
-                  <ListItemText primary={item.price} />
+                  <ListItemText primary={new Date(item.date).getDate()} />
                 </Grid>
               ))}
             </List>
@@ -88,16 +93,27 @@ export const App = () => {
               direction='column'
               justifyContent='center'
               alignItems='center'>
-              {formText && <Typography style={{ textAlign: 'center' }}>{formText}$</Typography>}
               <Box
                 style={{ display: 'flex', flexDirection: 'column', rowGap: '10px' }}
                 onSubmit={handleSubmit}
                 component='form'>
                 <TextField
                   type='number'
-                  value={inputValue}
-                  onChange={e => setInputValue(e.target.value)}
+                  value={price}
+                  onChange={e => setPrice(e.target.value)}
                   label='Price'
+                  variant='filled'
+                />
+                <TextField
+                  value={category}
+                  onChange={e => setCategory(e.target.value)}
+                  label='Category'
+                  variant='filled'
+                />
+                <TextField
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  label='Description'
                   variant='filled'
                 />
                 <Button type='submit' variant='outlined'>
@@ -118,7 +134,7 @@ export const App = () => {
           <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
             <BottomNavigation
               value={value}
-              onChange={(event, newValue) => {
+              onChange={(_, newValue) => {
                 setValue(newValue);
               }}>
               <BottomNavigationAction label='Recents' value='recents' icon={<RestoreIcon color='primary' />} />
