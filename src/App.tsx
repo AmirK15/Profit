@@ -1,9 +1,7 @@
-import React, { FormEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   BottomNavigation,
   BottomNavigationAction,
-  Box,
-  Button,
   Container,
   createTheme,
   Fab,
@@ -11,8 +9,6 @@ import {
   List,
   ListItemText,
   Paper,
-  SwipeableDrawer,
-  TextField,
   ThemeProvider,
   Typography,
 } from '@mui/material';
@@ -24,10 +20,11 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AddIcon from '@mui/icons-material/Add';
 import { teal } from '@mui/material/colors';
 import { useTransactionsStore } from './store';
+import { CreateForm } from './components/createForm';
 
 const theme = createTheme({
   typography: {
-    fontFamily: 'Public Sans',
+    fontFamily: 'DM Sans, Comfortaa',
   },
   palette: {
     primary: {
@@ -37,29 +34,14 @@ const theme = createTheme({
 });
 
 export const App = () => {
-  const { transactions, getAllTransactions, createTransaction } = useTransactionsStore();
+  const { transactions, getAllTransactions } = useTransactionsStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [price, setPrice] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
+
   const [value, setValue] = useState('');
 
   useEffect(() => {
     getAllTransactions();
   }, []);
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    createTransaction({
-      sum: +price,
-      category: category,
-      description: description,
-      date: new Date('August 18, 2024 16:54:30').toString(),
-    });
-    getAllTransactions();
-    setIsOpen(false);
-  };
 
   return (
     <>
@@ -80,49 +62,12 @@ export const App = () => {
                 <Grid container direction='row' columnGap={1}>
                   <ListItemText primary={item.sum} />
                   <ListItemText primary={item.description} />
-                  <ListItemText primary={new Date(item.date).getDate()} />
+                  <ListItemText primary={item.date} />
                 </Grid>
               ))}
             </List>
           </Grid>
-          <SwipeableDrawer anchor='bottom' open={isOpen} onClose={() => setIsOpen(false)} onOpen={() => {}}>
-            <Grid
-              style={{ height: '90vh' }}
-              container
-              rowGap={2}
-              direction='column'
-              justifyContent='center'
-              alignItems='center'>
-              <Box
-                style={{ display: 'flex', flexDirection: 'column', rowGap: '10px' }}
-                onSubmit={handleSubmit}
-                component='form'>
-                <TextField
-                  type='number'
-                  value={price}
-                  onChange={e => setPrice(e.target.value)}
-                  label='Price'
-                  variant='filled'
-                />
-                <TextField
-                  value={category}
-                  onChange={e => setCategory(e.target.value)}
-                  label='Category'
-                  variant='filled'
-                />
-                <TextField
-                  value={description}
-                  onChange={e => setDescription(e.target.value)}
-                  label='Description'
-                  variant='filled'
-                />
-                <Button type='submit' variant='outlined'>
-                  Submit
-                </Button>
-              </Box>
-              {value && <Typography style={{ textAlign: 'center' }}>{value} page</Typography>}
-            </Grid>
-          </SwipeableDrawer>
+          <CreateForm isDrawerOpen={isOpen} setIsDrawerOpen={setIsOpen} />
           <Paper
             style={{ boxShadow: 'none', background: 'transparent' }}
             sx={{ position: 'fixed', bottom: 105, right: 50 }}
