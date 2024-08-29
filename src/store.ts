@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { db } from './firebase-config';
-import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, orderBy } from 'firebase/firestore';
 
 export type Transaction = {
   id: number;
@@ -22,7 +22,7 @@ export const useTransactionsStore = create<TransactionsState>()(set => ({
   transactions: [],
 
   getAllTransactions: async () => {
-    const data = await getDocs(transactionsCollection);
+    const data = await getDocs(query(transactionsCollection, orderBy('date', 'desc')));
     // @ts-ignore
     set({ transactions: data.docs.map(item => ({ id: item.id, ...item.data() })) });
   },
