@@ -18,17 +18,16 @@ import ArchiveIcon from '@mui/icons-material/Archive';
 import FolderIcon from '@mui/icons-material/Folder';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AddIcon from '@mui/icons-material/Add';
-import { teal } from '@mui/material/colors';
 import { useTransactionsStore } from './store';
-import { CreateForm } from './components/createForm';
+import { CreateForm } from './components';
 
 const theme = createTheme({
   typography: {
-    fontFamily: 'DM Sans, Comfortaa',
+    fontFamily: 'Noto Sans',
   },
   palette: {
     primary: {
-      main: teal[500],
+      main: '#917DE3',
     },
   },
 });
@@ -48,7 +47,7 @@ export const App = () => {
       <ThemeProvider theme={theme}>
         <Container
           style={{
-            background: '#1C252E',
+            background: '#1B1B29',
             color: '#fff',
             height: '100vh',
             display: 'flex',
@@ -56,10 +55,14 @@ export const App = () => {
             alignItems: 'center',
           }}>
           <Grid container direction='column' justifyContent='center' alignItems='center'>
-            <Typography variant='h3'>PROFIT</Typography>
+            <Typography variant='h3' style={{ fontWeight: 700 }}>
+              {transactions.reduce((acc, rec) => {
+                return acc + rec.sum;
+              }, 0)}
+            </Typography>
             <List>
               {transactions.map(item => (
-                <Grid container direction='row' columnGap={1}>
+                <Grid key={item.id} container direction='row' columnGap={1}>
                   <ListItemText primary={item.sum} />
                   <ListItemText primary={item.description} />
                   <ListItemText primary={item.date} />
