@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { List, ListItemText, Box, Button, Typography } from '@mui/material';
 import { Transaction, useTransactionsStore } from '../../store';
 import './history.css';
+import dayjs from 'dayjs';
 
 export const History = () => {
   const { transactions } = useTransactionsStore();
@@ -9,7 +10,11 @@ export const History = () => {
   const [showSum, setShowSum] = useState(false);
 
   useEffect(() => {
-    setData(transactions);
+    setData(
+      transactions
+        .sort((a, b) => dayjs(b.date).date() - dayjs(a.date).date())
+        .sort((a, b) => dayjs(b.date).month() - dayjs(a.date).month()),
+    );
   }, [transactions]);
 
   const changeCategory = () => {
