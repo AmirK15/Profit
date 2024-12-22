@@ -13,10 +13,9 @@ interface Accumulator {
 }
 
 export const Home = () => {
-  const { transactions } = useTransactionsStore();
+  const { transactions, getAllTransactions } = useTransactionsStore();
 
-  const [filteredData, setFilteredData] = useState(transactions);
-  const [groupedData, setGroupedData] = useState<GroupedData[]>([]);
+  const [error, setError] = useState('');
 
   const months = [
     'January',
@@ -35,30 +34,48 @@ export const Home = () => {
   const currentMonth = dayjs().month();
   const currentYear = dayjs().year();
 
+  const filteredData = transactions.filter(item => {
+    const date = dayjs(item.date);
+    return date.month() === currentMonth && date.year() === currentYear;
+  });
+
+  const groupedData = Object.values(
+    transactions.reduce<Accumulator>((acc, item) => {
+      const date = dayjs(item.date);
+      const monthYear = date.format('YYYY-MMMM');
+
+      if (!acc[monthYear]) {
+        acc[monthYear] = { month: monthYear, count: 0 };
+      }
+
+      acc[monthYear].count += item.sum;
+      return acc;
+    }, {}),
+  );
+
   useEffect(() => {
-    setFilteredData(
-      transactions.filter(item => {
-        const date = dayjs(item.date);
-        return date.month() === currentMonth && date.year() === currentYear;
-      }),
-    );
+    const getData = async () => {
+      try {
+        await getAllTransactions();
+      } catch (e) {
+        if (typeof e === 'string') {
+          setError(e);
+        } else if (e instanceof Error) {
+          setError(e.message);
+        }
+      }
+    };
 
-    setGroupedData(
-      Object.values(
-        transactions.reduce<Accumulator>((acc, item) => {
-          const date = dayjs(item.date);
-          const monthYear = date.format('YYYY-MMMM');
-
-          if (!acc[monthYear]) {
-            acc[monthYear] = { month: monthYear, count: 0 };
-          }
-
-          acc[monthYear].count += item.sum;
-          return acc;
-        }, {}),
-      ),
-    );
+    getData();
   }, []);
+
+  if (!!error.length) {
+    return (
+      <>
+        Oops Error <br /> {error}
+      </>
+    );
+  }
 
   return (
     <Box

@@ -3,7 +3,7 @@ import { db } from './firebase-config';
 import { collection, getDocs, addDoc, query, orderBy } from 'firebase/firestore';
 
 export type Transaction = {
-  id: number;
+  id: string;
   sum: number;
   category: string;
   description: string;
@@ -12,7 +12,7 @@ export type Transaction = {
 
 interface TransactionsState {
   transactions: Transaction[];
-  getAllTransactions: () => void;
+  getAllTransactions: () => Promise<void>;
   createTransaction: (transactionInfo: Omit<Transaction, 'id'>) => void;
 }
 
@@ -23,8 +23,9 @@ export const useTransactionsStore = create<TransactionsState>()(set => ({
 
   getAllTransactions: async () => {
     const data = await getDocs(query(transactionsCollection, orderBy('date', 'desc')));
-    // @ts-ignore
-    set({ transactions: data.docs.map(item => ({ id: item.id, ...item.data() })) });
+    const transactions = data.docs.map(item => ({ id: item.id, ...item.data() })) as Transaction[];
+
+    set({ transactions });
   },
 
   createTransaction: async transactionInfo => {
