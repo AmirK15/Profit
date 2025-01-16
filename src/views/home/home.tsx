@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import { Typography, Box } from '@mui/material';
 import dayjs from 'dayjs';
 import { useTransactionsStore } from '../../store';
@@ -13,9 +12,7 @@ interface Accumulator {
 }
 
 export const Home = () => {
-  const { transactions, getAllTransactions } = useTransactionsStore();
-
-  const [error, setError] = useState('');
+  const { transactions } = useTransactionsStore();
 
   const months = [
     'January',
@@ -40,42 +37,21 @@ export const Home = () => {
   });
 
   const groupedData = Object.values(
-    transactions.reduce<Accumulator>((acc, item) => {
-      const date = dayjs(item.date);
-      const monthYear = date.format('YYYY-MMMM');
+    transactions
+      .sort((a, b) => dayjs(b.date).month() - dayjs(a.date).month())
+      .sort((a, b) => dayjs(b.date).year() - dayjs(a.date).year())
+      .reduce<Accumulator>((acc, item) => {
+        const date = dayjs(item.date);
+        const monthYear = date.format('YYYY-MMMM');
 
-      if (!acc[monthYear]) {
-        acc[monthYear] = { month: monthYear, count: 0 };
-      }
-
-      acc[monthYear].count += item.sum;
-      return acc;
-    }, {}),
-  );
-
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        await getAllTransactions();
-      } catch (e) {
-        if (typeof e === 'string') {
-          setError(e);
-        } else if (e instanceof Error) {
-          setError(e.message);
+        if (!acc[monthYear]) {
+          acc[monthYear] = { month: monthYear, count: 0 };
         }
-      }
-    };
 
-    getData();
-  }, []);
-
-  if (!!error.length) {
-    return (
-      <>
-        Oops Error <br /> {error}
-      </>
-    );
-  }
+        acc[monthYear].count += item.sum;
+        return acc;
+      }, {}),
+  );
 
   return (
     <Box
@@ -98,7 +74,7 @@ export const Home = () => {
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
         {groupedData.map(item => (
-          <Typography variant='h6'>
+          <Typography variant='h6' key={item.count}>
             {item.month} {item.count}
           </Typography>
         ))}

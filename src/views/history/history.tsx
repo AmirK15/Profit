@@ -11,9 +11,12 @@ export const History = () => {
 
   useEffect(() => {
     setData(
-      transactions
-        .sort((a, b) => dayjs(b.date).date() - dayjs(a.date).date())
-        .sort((a, b) => dayjs(b.date).month() - dayjs(a.date).month()),
+      transactions.sort((a, b) => {
+        const dateA = dayjs(a.date);
+        const dateB = dayjs(b.date);
+
+        return dateB.year() - dateA.year() || dateB.month() - dateA.month() || dateB.date() - dateA.date();
+      }),
     );
   }, [transactions]);
 
@@ -25,6 +28,14 @@ export const History = () => {
   const resetCategory = () => {
     setData(transactions);
     setShowSum(false);
+  };
+
+  const todaySum = () => {
+    return data
+      .filter(({ date }) => dayjs(date).format('MMMM D, YYYY') === dayjs().format('MMMM D, YYYY'))
+      .reduce((acc, rec) => {
+        return acc + rec.sum;
+      }, 0);
   };
 
   return (
@@ -44,6 +55,9 @@ export const History = () => {
           }, 0)}
         </Typography>
       )}
+      <br />
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>Today: {todaySum()}</Box>
+      <br />
       <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <List sx={{ width: '80%', display: 'flex', flexDirection: 'column', rowGap: '15px' }}>
           {data.map(item => (

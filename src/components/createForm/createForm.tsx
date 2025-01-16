@@ -1,6 +1,6 @@
 import { FC, FormEvent, useState } from 'react';
 import dayjs from 'dayjs';
-import { Box, Button, Fab, Grid, Paper, SwipeableDrawer, TextField } from '@mui/material';
+import { Box, Button, Fab, Grid, Paper, SwipeableDrawer, TextField, Autocomplete } from '@mui/material';
 import { useTransactionsStore } from '../../store';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -20,14 +20,23 @@ export const CreateForm: FC = () => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    createTransaction({
-      sum: +price,
-      category: category,
-      description: description,
-      date: dayjs().format('MMMM D, YYYY h:mm A'),
-    });
-    getAllTransactions();
-    setIsOpen(false);
+    try {
+      createTransaction({
+        sum: +price,
+        category: category,
+        description: description,
+        date: dayjs().format('MMMM D, YYYY h:mm A'),
+      });
+
+      getAllTransactions();
+
+      setIsOpen(false);
+      setPrice('');
+      setCategory('');
+      setDescription('');
+    } catch (e: any) {
+      alert(e.message);
+    }
   };
 
   return (
@@ -51,12 +60,37 @@ export const CreateForm: FC = () => {
               label='Price'
               variant='filled'
             />
-            <TextField value={category} onChange={e => setCategory(e.target.value)} label='Category' variant='filled' />
-            <TextField
+            <Autocomplete
+              options={['Еда', 'Дорога']}
+              value={category}
+              onChange={(_, value) => {
+                if (value) setCategory(value);
+              }}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  value={category}
+                  onChange={e => setCategory(e.target.value)}
+                  label='Category'
+                  variant='filled'
+                />
+              )}
+            />
+            <Autocomplete
+              options={['Обед', 'Такси']}
               value={description}
-              onChange={e => setDescription(e.target.value)}
-              label='Description'
-              variant='filled'
+              onChange={(_, value) => {
+                if (value) setDescription(value);
+              }}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  label='Description'
+                  variant='filled'
+                />
+              )}
             />
             <Button type='submit' variant='outlined'>
               Submit
