@@ -1,4 +1,4 @@
-import { FC, FormEvent, useState } from 'react';
+import { FC, FormEvent, useRef, useState } from 'react';
 import dayjs from 'dayjs';
 import { Box, Button, Fab, Grid, Paper, SwipeableDrawer, TextField, Autocomplete } from '@mui/material';
 import { useTransactionsStore } from '../../store';
@@ -10,6 +10,8 @@ import AddIcon from '@mui/icons-material/Add';
 // }
 
 export const CreateForm: FC = () => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const [isOpen, setIsOpen] = useState(false);
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
@@ -39,6 +41,13 @@ export const CreateForm: FC = () => {
     }
   };
 
+  const onOpenModal = () => {
+    setIsOpen(true);
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
+  };
+
   return (
     <>
       <SwipeableDrawer anchor='bottom' open={isOpen} onClose={() => setIsOpen(false)} onOpen={() => {}}>
@@ -54,6 +63,7 @@ export const CreateForm: FC = () => {
             onSubmit={handleSubmit}
             component='form'>
             <TextField
+              inputRef={inputRef}
               type='number'
               value={price}
               onChange={e => setPrice(e.target.value)}
@@ -61,6 +71,7 @@ export const CreateForm: FC = () => {
               variant='filled'
             />
             <Autocomplete
+              autoFocus
               options={['Еда', 'Дорога']}
               value={category}
               onChange={(_, value) => {
@@ -102,7 +113,7 @@ export const CreateForm: FC = () => {
         style={{ boxShadow: 'none', background: 'transparent' }}
         sx={{ position: 'fixed', bottom: 105, right: 50 }}
         elevation={3}>
-        <Fab onClick={() => setIsOpen(true)} color='primary' aria-label='add'>
+        <Fab onClick={onOpenModal} color='primary' aria-label='add'>
           <AddIcon />
         </Fab>
       </Paper>
