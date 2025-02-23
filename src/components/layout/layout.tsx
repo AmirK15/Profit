@@ -19,7 +19,6 @@ export const Layout = () => {
     <ThemeProvider theme={theme}>
       <Container sx={{ height: '93vh', overflowY: 'auto' }}>
         <Outlet />
-        <CreateForm />
       </Container>
       <Navbar />
     </ThemeProvider>
