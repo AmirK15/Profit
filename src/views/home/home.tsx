@@ -1,95 +1,85 @@
-import { FC, FormEvent, useState } from 'react';
+import { Typography, Box, Button } from '@mui/material';
 import dayjs from 'dayjs';
-import { Box, Button, Grid, TextField, Autocomplete } from '@mui/material';
 import { useTransactionsStore } from '../../store';
 
-export const Home: FC = () => {
-  const [price, setPrice] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
+interface GroupedData {
+  month: string;
+  count: number;
+}
 
-  const { getAllTransactions, createTransaction } = useTransactionsStore();
+interface Accumulator {
+  [key: string]: GroupedData;
+}
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+export const Home = () => {
+  const { transactions } = useTransactionsStore();
 
-    try {
-      createTransaction({
-        sum: +price,
-        category: category,
-        description: description,
-        date: dayjs().format('MMMM D, YYYY h:mm A'),
-      });
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  const currentMonth = dayjs().month();
+  const currentYear = dayjs().year();
 
-      getAllTransactions();
+  const filteredData = transactions.filter(item => {
+    const date = dayjs(item.date);
+    return date.month() === currentMonth && date.year() === currentYear;
+  });
 
-      setPrice('');
-      setCategory('');
-      setDescription('');
-    } catch (e: any) {
-      alert(e.message);
-    }
-  };
+  const groupedData = Object.values(
+    transactions
+      .sort((a, b) => dayjs(b.date).month() - dayjs(a.date).month())
+      .sort((a, b) => dayjs(b.date).year() - dayjs(a.date).year())
+      .reduce<Accumulator>((acc, item) => {
+        const date = dayjs(item.date);
+        const monthYear = date.format('YYYY-MMMM');
+
+        if (!acc[monthYear]) {
+          acc[monthYear] = { month: monthYear, count: 0 };
+        }
+
+        acc[monthYear].count += item.sum;
+        return acc;
+      }, {}),
+  );
 
   return (
-    <>
-      <Grid
-        style={{ height: '90vh' }}
-        container
-        rowGap={2}
-        direction='column'
-        justifyContent='center'
-        alignItems='center'>
-        <Box
-          style={{ display: 'flex', flexDirection: 'column', rowGap: '10px' }}
-          onSubmit={handleSubmit}
-          component='form'>
-          <TextField
-            autoFocus
-            type='number'
-            value={price}
-            onChange={e => setPrice(e.target.value)}
-            label='Price'
-            variant='filled'
-          />
-          <Autocomplete
-            autoFocus
-            options={['Еда', 'Дорога']}
-            value={category}
-            onChange={(_, value) => {
-              if (value) setCategory(value);
-            }}
-            renderInput={params => (
-              <TextField
-                {...params}
-                value={category}
-                onChange={e => setCategory(e.target.value)}
-                label='Category'
-                variant='filled'
-              />
-            )}
-          />
-          <Autocomplete
-            options={['Обед', 'Такси']}
-            value={description}
-            onChange={(_, value) => {
-              if (value) setDescription(value);
-            }}
-            renderInput={params => (
-              <TextField
-                {...params}
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                label='Description'
-                variant='filled'
-              />
-            )}
-          />
-          <Button type='submit' variant='outlined'>
-            Submit
-          </Button>
-        </Box>
-      </Grid>
-    </>
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+      }}>
+      <Button onClick={() => window.location.reload()}>Refresh</Button>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+        <Typography variant='h6'>
+          {months[currentMonth]} {currentYear}
+        </Typography>
+        <Typography variant='h3' style={{ fontWeight: 700 }}>
+          {filteredData.reduce((acc, rec) => {
+            return acc + rec.sum;
+          }, 0)}
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+        {groupedData.map(item => (
+          <Typography variant='h6' key={item.count}>
+            {item.month} {item.count}
+          </Typography>
+        ))}
+      </Box>
+    </Box>
   );
 };

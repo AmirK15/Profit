@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { BottomNavigation, BottomNavigationAction, Paper } from '@mui/material';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import QueryStatsIcon from '@mui/icons-material/QueryStats';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 export const Navbar = () => {
   return (
@@ -12,8 +12,8 @@ export const Navbar = () => {
         <Link to='/'>
           <BottomNavigationAction label='Home' icon={<HomeRoundedIcon color='primary' />} />
         </Link>
-        <Link to='/stats'>
-          <BottomNavigationAction label='List' icon={<QueryStatsIcon color='primary' />} />
+        <Link to='/create'>
+          <BottomNavigationAction label='List' icon={<AddCircleOutlineIcon color='primary' />} />
         </Link>
         <Link to='/history'>
           <BottomNavigationAction label='List' icon={<FormatListBulletedIcon color='primary' />} />
