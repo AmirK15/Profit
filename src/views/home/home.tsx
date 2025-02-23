@@ -1,4 +1,4 @@
-import { Typography, Box } from '@mui/material';
+import { Typography, Box, Button } from '@mui/material';
 import dayjs from 'dayjs';
 import { useTransactionsStore } from '../../store';
 
@@ -62,6 +62,7 @@ export const Home = () => {
         justifyContent: 'space-evenly',
         alignItems: 'center',
       }}>
+      <Button onClick={() => window.location.reload()}>Refresh</Button>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
         <Typography variant='h6'>
           {months[currentMonth]} {currentYear}

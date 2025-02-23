@@ -7,7 +7,6 @@ import dayjs from 'dayjs';
 export const History = () => {
   const { transactions } = useTransactionsStore();
   const [data, setData] = useState<Transaction[]>([]);
-  const [showSum, setShowSum] = useState(false);
 
   useEffect(() => {
     setData(
@@ -20,43 +19,17 @@ export const History = () => {
     );
   }, [transactions]);
 
-  const changeCategory = () => {
-    setData(data.filter(item => item.description.includes('обед')));
-    setShowSum(true);
-  };
-
-  const resetCategory = () => {
-    setData(transactions);
-    setShowSum(false);
-  };
-
-  const todaySum = () => {
-    return data
-      .filter(({ date }) => dayjs(date).format('MMMM D, YYYY') === dayjs().format('MMMM D, YYYY'))
-      .reduce((acc, rec) => {
-        return acc + rec.sum;
-      }, 0);
-  };
+  const todaySum = data
+    .filter(({ date }) => dayjs(date).format('MMMM D, YYYY') === dayjs().format('MMMM D, YYYY'))
+    .reduce((acc, rec) => {
+      return acc + rec.sum;
+    }, 0);
 
   return (
     <>
-      <Box sx={{ display: 'flex', justifyContent: 'center', columnGap: '15px', marginBlock: '25px' }}>
-        <Button variant='contained' onClick={changeCategory}>
-          Food
-        </Button>
-        <Button variant='contained' onClick={resetCategory}>
-          Reset
-        </Button>
-      </Box>
-      {showSum && (
-        <Typography sx={{ textAlign: 'center' }} variant='h6' style={{ fontWeight: 700 }}>
-          {data.reduce((acc, rec) => {
-            return acc + rec.sum;
-          }, 0)}
-        </Typography>
+      {!!todaySum && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', paddingTop: '15px' }}>Today: {todaySum}</Box>
       )}
-      <br />
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>Today: {todaySum()}</Box>
       <br />
       <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <List sx={{ width: '80%', display: 'flex', flexDirection: 'column', rowGap: '15px' }}>
